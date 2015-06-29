@@ -1,0 +1,28 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:weightSum="1">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/newgame"
+        android:id="@+id/btn_newGame"
+        android:layout_gravity="center"
+        android:clickable="true"
+        android:elegantTextHeight="true"
+        android:nestedScrollingEnabled="false"
+        android:textStyle="bold"
+        android:typeface="sans"
+        android:background="#ff84f5ff"
+        android:backgroundTint="#ff61ff7f"
+        android:backgroundTintMode="multiply"
+        android:capitalize="none"
+        android:enabled="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="63dp"
+        android:onClick="buttonOnClick" />
+</RelativeLayout>
