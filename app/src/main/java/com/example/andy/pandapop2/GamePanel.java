@@ -212,7 +212,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
            BallBasic ballBasic = iterator.next();
            ballBasic.hitSides(screenWidth);
            ballBasic.update();
-           if (ballBasic.y<0){
+           if ((ballBasic.y+ballBasic.width)<0){
                iterator.remove();
                ballBasic = null;
            }
@@ -245,15 +245,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         final float scaleFactorX = getScaleX();
         final float scaleFactorY = getScaleY();
         if (canvas  != null){
-            canvas.scale(scaleFactorX, scaleFactorY);
-            bg.draw(canvas);
-            for (Iterator<BallBasic> iterator = ballBasicsToUpdate.iterator(); iterator.hasNext();){
-                BallBasic ballBasic = iterator.next();
-                ballBasic.draw(canvas);
-            }
-            for (Iterator<BallBad> iterator = ballBadsToUpdate.iterator(); iterator.hasNext();){
-                BallBad ballBad = iterator.next();
-                ballBad.draw(canvas);
+            synchronized (thread) {
+                canvas.scale(scaleFactorX, scaleFactorY);
+                bg.draw(canvas);
+                for (Iterator<BallBasic> iterator = ballBasicsToUpdate.iterator(); iterator.hasNext(); ) {
+                    BallBasic ballBasic = iterator.next();
+                    ballBasic.draw(canvas);
+                }
+                for (Iterator<BallBad> iteratorBad = ballBadsToUpdate.iterator(); iteratorBad.hasNext(); ) {
+                    BallBad ballBad = iteratorBad.next();
+                    ballBad.draw(canvas);
+                }
             }
         }
     }
@@ -322,19 +324,23 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         return new BallBad(poacherRes,60,60,5,badBallType);
     }
     private void CheckGoodBadCollisions(){
-        for (BallBasic ballBasic: ballBasicsToUpdate){
+        BallBad ballBad;
+        BallBasic ballBasic;
+        for (Iterator<BallBasic> iterator = ballBasicsToUpdate.iterator(); iterator.hasNext();){
+            ballBasic = iterator.next();
             if (ballBasic!=ballBasicSelected && ballBasic.inPlay){
-                for (BallBad ballBad: ballBadsToUpdate){
+                for (Iterator<BallBad> iteratorBad = ballBadsToUpdate.iterator(); iteratorBad.hasNext();){
+                    ballBad = iteratorBad.next();
                     ballBasic.CheckGoodBadCollision(ballBad);
                     if (ballBad.dead){
-                        ballBadsToUpdate.remove(ballBad);
+                        iteratorBad.remove();
                         ballBad = null;
                     }
                     if (ballBasic.dead) break;
                 }
             }
             if (ballBasic.dead){
-                ballBasicsToUpdate.remove(ballBasic);
+                iterator.remove();
                 ballBasic = null;
             }
         }

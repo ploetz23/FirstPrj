@@ -11,6 +11,8 @@ import com.example.andy.pandapop2.util.SystemUiHider;
  */
 public class BallBasic extends GameObject {
     private Animation animation = new Animation();
+    private static final double DamageConstant = 25;
+
     public GoodBallType goodBallType;
     public boolean inPlay = true;
     public BallBasic(Bitmap[] res, int w, int h, int numFrames, GoodBallType type){
@@ -53,25 +55,28 @@ public class BallBasic extends GameObject {
         }
         else if ((radiusBad+radiusGood)>distance){
             //Contact! Do something about it!
-            KillAndUpdateHitPoints(ballBad);
+            KillAndUpdateHitPoints(ballBad, radiusGood, radiusBad);
         }
     }
-    private void KillAndUpdateHitPoints(BallBad ballBad){
+    private void KillAndUpdateHitPoints(BallBad ballBad, double GoodRadius, double BadRadius){
         double damageToGood;
         double damageToBad;
-        int deltaXGoodBad = this.x-ballBad.x;
-        int deltaYGoodBad = this.y-ballBad.y;
-        int deltaXBadGood = -deltaXGoodBad;
-        int deltaYBadGood = -deltaYGoodBad;
+        double deltaXGoodBad = (this.x-GoodRadius)-(ballBad.x-BadRadius);
+        double deltaYGoodBad = (this.y-GoodRadius)-(ballBad.y-BadRadius);
+        double deltaXBadGood = -deltaXGoodBad;
+        double deltaYBadGood = -deltaYGoodBad;
 
-        damageToBad = (Math.atan(deltaXGoodBad/deltaYGoodBad)+Math.asin(dx/dy))*Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2))*firePower;
-        damageToGood = (Math.atan(deltaXBadGood/deltaYBadGood)+ Math.asin(ballBad.dx/ballBad.dy))*Math.sqrt(Math.pow(ballBad.dx,2)+Math.pow(ballBad.dy,2))*ballBad.firePower;
+        damageToBad = (Math.cos(Math.atan(deltaXGoodBad/deltaYGoodBad)))*firePower*Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2))/DamageConstant;
+        damageToGood = (Math.cos(Math.atan(deltaXBadGood/deltaYBadGood)))*ballBad.firePower*Math.sqrt(Math.pow(ballBad.dx,2)+Math.pow(ballBad.dy,2))/DamageConstant;
 
         System.out.println(damageToBad);
         System.out.println(damageToGood);
 
         if (damageToBad<0){
             damageToBad = 0;
+        }
+        if (damageToGood<0){
+            damageToGood=0;
         }
         if (damageToBad>damageToGood){
             ballBad.dead=true;

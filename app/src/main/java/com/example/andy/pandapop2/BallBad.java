@@ -23,7 +23,7 @@ public class BallBad extends GameObject {
         switch (type){
             case POACHER:
                 hitPoints = 60;
-                firePower = 60;
+                firePower = 100;
         }
     }
     public void update(){
