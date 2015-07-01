@@ -13,9 +13,12 @@ public abstract class GameObject {
     protected int width;
     protected int height;
     protected int mass;
+    protected boolean dead = false;
+    protected int hitPoints;
+    protected int firePower;
 
     public void hitSides(int screenWidth){
-        if ((x <= 0)||(x+width >= screenWidth)){
+        if ((x <= 0)||((x+width) >= screenWidth)){
             dx=-dx;
         }
     }

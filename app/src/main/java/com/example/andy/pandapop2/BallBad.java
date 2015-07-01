@@ -16,11 +16,14 @@ public class BallBad extends GameObject {
         for (int i = 0; i < image.length; i++){
             image[i] = Bitmap.createBitmap(res[i]);
         }
+        this.width=w;
+        this.height=h;
         animation.setFrames(image);
         this.badBallType = type;
         switch (type){
             case POACHER:
-                mass = 150;
+                hitPoints = 60;
+                firePower = 60;
         }
     }
     public void update(){

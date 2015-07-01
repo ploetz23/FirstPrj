@@ -7,7 +7,7 @@ import android.view.SurfaceHolder;
  * Created by Andy on 6/20/2015.
  */
 public class MainThread extends Thread {
-    private SurfaceHolder surfaceHolder;
+    private final SurfaceHolder surfaceHolder;
     private GamePanel gamePanel;
     private boolean running=true;
     private static Canvas canvas;
@@ -38,8 +38,9 @@ public class MainThread extends Thread {
             try {
                 canvas = this.surfaceHolder.lockCanvas();
                 synchronized (surfaceHolder){
-                    this.gamePanel.update();
-                    this.gamePanel.draw(canvas);
+                        this.gamePanel.update();
+                        this.gamePanel.draw(canvas);
+
                 }
             } catch (Exception e) {
                 e.printStackTrace();

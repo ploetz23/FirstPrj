@@ -16,7 +16,7 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.WindowManager;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Iterator;
 
 import static com.example.andy.pandapop2.Game.*;
 import static com.example.andy.pandapop2.Game.BadBallType.POACHER;
@@ -33,7 +33,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private Background bg;
     private Bitmap[] pawnRes;
     private Bitmap[] poacherRes;
-    private BallBasic ballBasicBox;
     private BallBasic ballBasicSelected;
     private ArrayList<BallBasic> ballBasicsToUpdate = new ArrayList<>();
     private ArrayList<BallBad> ballBadsToUpdate = new ArrayList<>();
@@ -102,7 +101,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                             mVelocityTracker.clear();
                             break;
                         }
-                        ballBasicSelected = CreateBallBasic(PAWN);
+                        ballBasicSelected = CreateBallBasic(ballBox.goodBallType);
                         ballBasicSelected.x = x;
                         ballBasicSelected.y = y;
                         ballBasicsToUpdate.add(ballBasicSelected);
@@ -138,7 +137,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                                 ballBasicSelected = null;
                                 break;
                             }
-                            BallBasic bb = CreateBallBasic(PAWN);
+                            BallBasic bb = CreateBallBasic(ballBasicSelected.goodBallType);
                             if (dx > 2500) dx = 2500;
                             if (dx < -2500) dx = -2500;
                             if (dy < -2500) dy = -2500;
@@ -170,10 +169,10 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         int i;
         for (i = 0; i<goodBallTypes.length; i++){
             ballBox = new BallBox((int)i*(screenWidth/numBoxes),screenHeight-200,screenWidth/numBoxes,200,goodBallTypes[i]);
-            BallBasic bbb  = CreateBallBasic(PAWN);
+            BallBasic bbb  = CreateBallBasic(goodBallTypes[i]);
+            bbb.inPlay=false;
             bbb.x = bbb.x + ballBox.width/2 - bbb.width/2;
             bbb.y = screenHeight - ballBox.height;
-            this.ballBasicBox = bbb;
             ballBasicsToUpdate.add(bbb);
             ballBoxArrayList.add(ballBox);
         }
@@ -209,19 +208,31 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void update(){
-       for (BallBasic ballBasic: ballBasicsToUpdate){
+       for (Iterator<BallBasic> iterator = ballBasicsToUpdate.iterator(); iterator.hasNext();){
+           BallBasic ballBasic = iterator.next();
            ballBasic.hitSides(screenWidth);
            ballBasic.update();
+           if (ballBasic.y<0){
+               iterator.remove();
+               ballBasic = null;
+           }
        }
-        for (BallBad ballBad: ballBadsToUpdate){
+        for (Iterator<BallBad> iterator = ballBadsToUpdate.iterator(); iterator.hasNext();){
+            BallBad ballBad = iterator.next();
             ballBad.hitSides(screenWidth);
             ballBad.update();
+            if (ballBad.y>(screenHeight-500)){
+                DoDamageToBase(ballBad);
+                iterator.remove();
+                ballBad = null;
+            }
         }
         if (needToGenerateBadGuy){
             BallBad ballBad = CreateBallBad(POACHER);
             ballBadsToUpdate.add(ballBad);
             needToGenerateBadGuy = false;
         }
+        CheckGoodBadCollisions();
     }
 
     @Override
@@ -236,10 +247,12 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if (canvas  != null){
             canvas.scale(scaleFactorX, scaleFactorY);
             bg.draw(canvas);
-            for (BallBasic ballBasic: ballBasicsToUpdate){
+            for (Iterator<BallBasic> iterator = ballBasicsToUpdate.iterator(); iterator.hasNext();){
+                BallBasic ballBasic = iterator.next();
                 ballBasic.draw(canvas);
             }
-            for (BallBad ballBad: ballBadsToUpdate){
+            for (Iterator<BallBad> iterator = ballBadsToUpdate.iterator(); iterator.hasNext();){
+                BallBad ballBad = iterator.next();
                 ballBad.draw(canvas);
             }
         }
@@ -298,6 +311,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                 bb.dx = (int)((randX-.5)*0.3*100);
                 double randY = Math.random();
                 bb.dy = (int) ((randY)*25);
+
                 if (bb.dy < 8) bb.dy = 8;
                 bb.x = (int) (Math.random()*screenWidth);
                 bb.y = -bb.height;
@@ -306,6 +320,27 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         //We'll never actually get to this line but it's included to
         //suppress compile errors
         return new BallBad(poacherRes,60,60,5,badBallType);
+    }
+    private void CheckGoodBadCollisions(){
+        for (BallBasic ballBasic: ballBasicsToUpdate){
+            if (ballBasic!=ballBasicSelected && ballBasic.inPlay){
+                for (BallBad ballBad: ballBadsToUpdate){
+                    ballBasic.CheckGoodBadCollision(ballBad);
+                    if (ballBad.dead){
+                        ballBadsToUpdate.remove(ballBad);
+                        ballBad = null;
+                    }
+                    if (ballBasic.dead) break;
+                }
+            }
+            if (ballBasic.dead){
+                ballBasicsToUpdate.remove(ballBasic);
+                ballBasic = null;
+            }
+        }
+    }
+    private void DoDamageToBase(BallBad ballBad){
+
     }
 
 }
