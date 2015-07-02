@@ -255,15 +255,17 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if (canvas  != null){
             canvas.scale(scaleFactorX, scaleFactorY);
             bg.draw(canvas);
+
+            //Syncrhonize ballBasicsToUpdate, because the user's onTouch
+            //could modify this and we have no control over when it's accessed.
+            //Prevents "ConcurrentModificationExeption".
             synchronized (ballBasicsToUpdate) {
                 for (BallBasic ballBasic : (Iterable<BallBasic>) ballBasicsToUpdate) {
                     ballBasic.draw(canvas);
                 }
             }
-            synchronized (ballBadsToUpdate) {
-                for (BallBad ballBad : (Iterable<BallBad>) ballBadsToUpdate) {
-                    ballBad.draw(canvas);
-                }
+            for (BallBad ballBad : (Iterable<BallBad>) ballBadsToUpdate) {
+                ballBad.draw(canvas);
             }
             for (BallBadExplosion ballBadExplosion: (Iterable<BallBadExplosion>) ballBadExplosionsToUpdate){
                 ballBadExplosion.draw(canvas);
