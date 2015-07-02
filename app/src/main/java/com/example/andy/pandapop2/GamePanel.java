@@ -33,11 +33,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private Background bg;
     private Bitmap[] pawnRes;
     private Bitmap[] poacherRes;
+    private Bitmap[] poacherExpRes;
     private BallBasic ballBasicSelected;
     private ArrayList<BallBasic> ballBasicsToUpdate = new ArrayList<>();
     private ArrayList<BallBad> ballBadsToUpdate = new ArrayList<>();
-    private GoodBallType[] goodBallTypes;
-    private BadBallType[] badBallTypes;
+    private ArrayList<BallBadExplosion> ballBadExplosionsToUpdate = new ArrayList<>();
     private BallBox ballBox;
     private boolean bgDrawn=false;
 
@@ -52,14 +52,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     //Ball boxes hold balls to bring into play
     private ArrayList<BallBox> ballBoxArrayList = new ArrayList<>();
-    private int numBoxes;
 
 
     public GamePanel(Context context, GoodBallType[] goodBallTypeAry, BadBallType[] badBallTypeAry,int level){
         super (context);
         this.Level = level;
-        this.goodBallTypes = goodBallTypeAry;
-        this.badBallTypes = badBallTypeAry;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
 
@@ -104,8 +101,9 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         ballBasicSelected = CreateBallBasic(ballBox.goodBallType);
                         ballBasicSelected.x = x;
                         ballBasicSelected.y = y;
-                        ballBasicsToUpdate.add(ballBasicSelected);
-
+                        synchronized (ballBasicsToUpdate) {
+                            ballBasicsToUpdate.add(ballBasicSelected);
+                        }
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if (mVelocityTracker == null) {
@@ -165,11 +163,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         bg = new Background(drawableToBitmap(getResources().getDrawable(R.drawable.start_background)));
 
         //Set up box of balls
-        numBoxes = goodBallTypes.length;
+        int numBoxes = goodBallTypeAry.length;
         int i;
-        for (i = 0; i<goodBallTypes.length; i++){
-            ballBox = new BallBox((int)i*(screenWidth/numBoxes),screenHeight-200,screenWidth/numBoxes,200,goodBallTypes[i]);
-            BallBasic bbb  = CreateBallBasic(goodBallTypes[i]);
+        for (i = 0; i< goodBallTypeAry.length; i++){
+            ballBox = new BallBox((int)i*(screenWidth/ numBoxes),screenHeight-200,screenWidth/ numBoxes,200, goodBallTypeAry[i]);
+            BallBasic bbb  = CreateBallBasic(goodBallTypeAry[i]);
             bbb.inPlay=false;
             bbb.x = bbb.x + ballBox.width/2 - bbb.width/2;
             bbb.y = screenHeight - ballBox.height;
@@ -208,6 +206,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void update(){
+        for (Iterator<BallBadExplosion> iterator = ballBadExplosionsToUpdate.iterator();iterator.hasNext();){
+            BallBadExplosion ballBadExplosion = iterator.next();
+            ballBadExplosion.update();
+            if (ballBadExplosion.done){
+                iterator.remove();
+                ballBadExplosion = null;
+            }
+        }
        for (Iterator<BallBasic> iterator = ballBasicsToUpdate.iterator(); iterator.hasNext();){
            BallBasic ballBasic = iterator.next();
            ballBasic.hitSides(screenWidth);
@@ -223,6 +229,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             ballBad.update();
             if (ballBad.y>(screenHeight-500)){
                 DoDamageToBase(ballBad);
+                BallBadExplosion ballBadExplosion = ExplodeBallBad(ballBad);
+                ballBadExplosionsToUpdate.add(ballBadExplosion);
                 iterator.remove();
                 ballBad = null;
             }
@@ -245,17 +253,20 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         final float scaleFactorX = getScaleX();
         final float scaleFactorY = getScaleY();
         if (canvas  != null){
-            synchronized (thread) {
-                canvas.scale(scaleFactorX, scaleFactorY);
-                bg.draw(canvas);
-                for (Iterator<BallBasic> iterator = ballBasicsToUpdate.iterator(); iterator.hasNext(); ) {
-                    BallBasic ballBasic = iterator.next();
+            canvas.scale(scaleFactorX, scaleFactorY);
+            bg.draw(canvas);
+            synchronized (ballBasicsToUpdate) {
+                for (BallBasic ballBasic : (Iterable<BallBasic>) ballBasicsToUpdate) {
                     ballBasic.draw(canvas);
                 }
-                for (Iterator<BallBad> iteratorBad = ballBadsToUpdate.iterator(); iteratorBad.hasNext(); ) {
-                    BallBad ballBad = iteratorBad.next();
+            }
+            synchronized (ballBadsToUpdate) {
+                for (BallBad ballBad : (Iterable<BallBad>) ballBadsToUpdate) {
                     ballBad.draw(canvas);
                 }
+            }
+            for (BallBadExplosion ballBadExplosion: (Iterable<BallBadExplosion>) ballBadExplosionsToUpdate){
+                ballBadExplosion.draw(canvas);
             }
         }
     }
@@ -334,6 +345,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                     ballBasic.CheckGoodBadCollision(ballBad);
                     if (ballBad.dead){
                         iteratorBad.remove();
+                        BallBadExplosion ballBadExplosion = ExplodeBallBad(ballBad);
+                        ballBadExplosionsToUpdate.add(ballBadExplosion);
                         ballBad = null;
                     }
                     if (ballBasic.dead) break;
@@ -348,5 +361,29 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private void DoDamageToBase(BallBad ballBad){
 
     }
-
+    private BallBadExplosion ExplodeBallBad(BallBad ballBad){
+        BallBadExplosion explosion;
+        switch (ballBad.badBallType){
+            case POACHER:
+                if (poacherExpRes == null){
+                    poacherExpRes = new Bitmap[11];
+                    poacherExpRes[0] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad_exp));
+                    poacherExpRes[1] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad_exp2));
+                    poacherExpRes[2] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad_exp3));
+                    poacherExpRes[3] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad_exp4));
+                    poacherExpRes[4] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad_exp5));
+                    poacherExpRes[5] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad_exp6));
+                    poacherExpRes[6] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad_exp7));
+                    poacherExpRes[7] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad_exp8));
+                    poacherExpRes[8] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad_exp9));
+                    poacherExpRes[9] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad_exp10));
+                    poacherExpRes[10] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad_exp11));
+                }
+                explosion = new BallBadExplosion(poacherExpRes,poacherExpRes[0].getWidth(),poacherExpRes[0].getHeight(),11);
+                explosion.x = ballBad.x - (explosion.width-ballBad.width)/2;
+                explosion.y = ballBad.y - (explosion.height-ballBad.height)/2;
+                return explosion;
+        }
+        return new BallBadExplosion(poacherExpRes,100,100,11);
+    }
 }

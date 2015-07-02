@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 
 import com.example.andy.pandapop2.Game.GoodBallType;
-import com.example.andy.pandapop2.util.SystemUiHider;
 
 /**
  * Created by Andy on 6/21/2015.

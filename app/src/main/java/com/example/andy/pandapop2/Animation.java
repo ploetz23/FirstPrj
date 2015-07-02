@@ -10,7 +10,7 @@ public class Animation {
     private int currentFrame;
     private long startTime;
     private long delay=30;
-    private boolean playedOnce;
+    public boolean playedOnce;
 
     public void setFrames(Bitmap[] frms){
         this.frames = frms;
