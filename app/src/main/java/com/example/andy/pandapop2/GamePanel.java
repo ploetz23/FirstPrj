@@ -160,7 +160,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         setFocusable(true);
 
         //Instantiate background
-        bg = new Background(drawableToBitmap(getResources().getDrawable(R.drawable.start_background)));
+        bg = new Background(drawableToBitmap(getResources().getDrawable(R.drawable.start_background_castle)));
 
         //Set up box of balls
         int numBoxes = goodBallTypeAry.length;
