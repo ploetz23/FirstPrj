@@ -13,6 +13,9 @@ public class BallBasic extends GameObject {
     private static final double DamageConstant = 25;
 
     public GoodBallType goodBallType;
+    public long RegenerationTime;
+    public long RegenerationCounter=0;
+
     public boolean inPlay = true;
     public BallBasic(Bitmap[] res, int w, int h, int numFrames, GoodBallType type){
         Bitmap[] image = new Bitmap[numFrames];
@@ -27,6 +30,7 @@ public class BallBasic extends GameObject {
             case PAWN:
                 firePower = 50;
                 hitPoints = 50;
+                RegenerationTime = 15; //half second
         }
 
     }

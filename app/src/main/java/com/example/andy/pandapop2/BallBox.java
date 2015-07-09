@@ -13,6 +13,7 @@ public class BallBox {
     public int width;
     public int height;
     public GoodBallType goodBallType;
+    public int RegenerationTime;
     public BallBox(int x, int y, int width, int height, GoodBallType goodBallType){
         this.x = x;
         this.y = y;

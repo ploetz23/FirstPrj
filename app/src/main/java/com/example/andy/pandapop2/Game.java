@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -19,7 +20,7 @@ import static com.example.andy.pandapop2.Game.GoodBallType.PAWN;
 
 public class Game extends Activity implements View.OnTouchListener {
 
-
+    public GamePanel gamePanel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,8 @@ public class Game extends Activity implements View.OnTouchListener {
                 ballTypeAry[0] = PAWN;
             }
         }
-        setContentView(new GamePanel(this, ballTypeAry, badBallTypes, level));
+        gamePanel = new GamePanel(this, ballTypeAry, badBallTypes, level);
+        setContentView(gamePanel);
     }
 
     @Override
@@ -67,6 +69,12 @@ public class Game extends Activity implements View.OnTouchListener {
     public boolean onTouch(View v, MotionEvent event) {
         super.onTouchEvent(event);
         return true;
+    }
+    protected void onPause() {
+        super.onPause();
+        gamePanel.surfaceDestroyed(gamePanel.getHolder());
+        gamePanel = null;
+        finish();
     }
 
     public enum GoodBallType{

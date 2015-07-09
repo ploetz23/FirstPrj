@@ -1,5 +1,6 @@
 package com.example.andy.pandapop2;
 
+import android.app.Activity;
 import android.graphics.Canvas;
 import android.view.SurfaceHolder;
 
@@ -12,11 +13,17 @@ public class MainThread extends Thread {
     private boolean running=true;
     private static Canvas canvas;
     private long badGuyCountDown=0;
+    private long badGuyCountDownRate;
+    private int EndGameCounter=15;
 
     public MainThread(SurfaceHolder surfaceHolder, GamePanel gamePanel) {
         super();
         this.surfaceHolder = surfaceHolder;
         this.gamePanel = gamePanel;
+        switch (this.gamePanel.Level){
+            case 1:
+                badGuyCountDownRate = 3;
+        }
     }
 
 
@@ -62,12 +69,13 @@ public class MainThread extends Thread {
 
             }
             totalTime += System.nanoTime() - startTime;
-            badGuyCountDown = badGuyCountDown-1;
+            badGuyCountDown = badGuyCountDown-badGuyCountDownRate;
             frameCount++;
             if (frameCount == FPS){
                 frameCount = 0;
                 totalTime = 0;
             }
+            CheckGame();
         }
     }
 
@@ -86,5 +94,26 @@ public class MainThread extends Thread {
                 }
         }
     }
+    public void CheckGame(){
+        if (gamePanel.castleHitPoints<=0){
+            EndGameCounter--;
+            if (EndGameCounter <=0) {
+                LoseGame();
+            }
+        }else if (gamePanel.BadGuysLeft == 0 && gamePanel.ballBadsToUpdate.size()==0){
+            EndGameCounter--;
+            if (EndGameCounter <=0) {
+                WinGame();
+            }
+        }
+    }
 
+    private void LoseGame(){
+       // gamePanel.surfaceDestroyed(gamePanel.getHolder());
+        ((Activity) gamePanel.getContext()).finish();
+    }
+    private void WinGame(){
+       // gamePanel.surfaceDestroyed(gamePanel.getHolder());
+        ((Activity) gamePanel.getContext()).finish();
+    }
 }

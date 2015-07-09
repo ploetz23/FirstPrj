@@ -38,10 +38,19 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
     public void buttonOnClick(View view){
+
         Intent intent= new Intent(MainActivity.this,Game.class);
         Bundle b = new Bundle();
         b.putInt("level", 1); //Your id
         intent.putExtras(b); //Put your id to your next Intent
         startActivity(intent);
     }
+
+    @Override
+    public void onRestart(){
+        super.onRestart();
+        recreate();
+    }
+
+
 }
