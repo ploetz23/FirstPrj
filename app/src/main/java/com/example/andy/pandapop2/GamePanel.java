@@ -62,10 +62,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     //Ball boxes hold balls to bring into play
     private ArrayList<BallBox> ballBoxArrayList = new ArrayList<>();
 
+    //Game Activity
+    public Game game;
 
-    public GamePanel(Context context, GoodBallType[] goodBallTypeAry, BadBallType[] badBallTypeAry,int level){
+
+    public GamePanel(Context context, GoodBallType[] goodBallTypeAry, BadBallType[] badBallTypeAry,int level,Game game){
         super (context);
         this.Level = level;
+        this.game=game;
 
         switch (level){
             case 1:
@@ -216,7 +220,6 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             }
             retry = false;
         }
-
     }
 
 

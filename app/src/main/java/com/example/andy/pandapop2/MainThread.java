@@ -98,22 +98,14 @@ public class MainThread extends Thread {
         if (gamePanel.castleHitPoints<=0){
             EndGameCounter--;
             if (EndGameCounter <=0) {
-                LoseGame();
+                gamePanel.game.LoseGame();
             }
         }else if (gamePanel.BadGuysLeft == 0 && gamePanel.ballBadsToUpdate.size()==0){
             EndGameCounter--;
             if (EndGameCounter <=0) {
-                WinGame();
+                gamePanel.game.WinGame();
             }
         }
     }
 
-    private void LoseGame(){
-       // gamePanel.surfaceDestroyed(gamePanel.getHolder());
-        ((Activity) gamePanel.getContext()).finish();
-    }
-    private void WinGame(){
-       // gamePanel.surfaceDestroyed(gamePanel.getHolder());
-        ((Activity) gamePanel.getContext()).finish();
-    }
 }

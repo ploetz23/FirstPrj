@@ -1,25 +1,45 @@
 package com.example.andy.pandapop2;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 
-public class MainActivity extends ActionBarActivity {
+public class EndGame extends ActionBarActivity {
+
+    private Intent resultIntent;
+    private Bundle b;
+    private int Level;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        resultIntent = new Intent();
+        b = getIntent().getExtras();
+        int wonGame = b.getInt("WonGame");
+        Level = b.getInt("Level");
+        setContentView(R.layout.activity_end_game);
+        if (wonGame==1) {
+            TextView text = (TextView) findViewById(R.id.textView);
+            text.setText(R.string.str_congratulations);
+        } else {
+            TextView text = (TextView) findViewById(R.id.textView);
+            text.setText(R.string.str_sorry_you_lost);
+            text.setTextColor(Color.RED);
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_end_game, menu);
         return true;
     }
 
@@ -37,12 +57,17 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    public void buttonOnClick(View view){
 
-        Intent intent= new Intent(MainActivity.this,Game.class);
+    public void onMainMenuClick(View view){
+        finish();
+    }
+    public void onRestartClick(View view){
+        finish();
+        Intent intent= new Intent(EndGame.this,Game.class);
         Bundle b = new Bundle();
-        b.putInt("level", 1);
+        b.putInt("level", Level);
         intent.putExtras(b);
         startActivity(intent);
     }
+
 }

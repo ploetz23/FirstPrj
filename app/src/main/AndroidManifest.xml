@@ -23,9 +23,11 @@
             android:label="@string/title_activity_game"
             android:largeHeap="true"
             android:theme="@style/FullscreenTheme" >
-
         </activity>
-
+        <activity
+            android:name=".EndGame"
+            android:label="@string/title_activity_end_game" >
+        </activity>
     </application>
 
 </manifest>

@@ -1,26 +1,24 @@
 package com.example.andy.pandapop2;
 
 import android.app.Activity;
-import android.support.v7.app.ActionBarActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-
-import com.example.andy.pandapop2.R;
-
-import java.net.ContentHandler;
-import java.util.ArrayList;
-
+import static com.example.andy.pandapop2.Game.BadBallType.POACHER;
 import static com.example.andy.pandapop2.Game.GoodBallType.PAWN;
 
 public class Game extends Activity implements View.OnTouchListener {
 
     public GamePanel gamePanel;
+    private final int END_GAME_ACTIVITY_CODE=1;
+
+    private int Level;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +31,19 @@ public class Game extends Activity implements View.OnTouchListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         //Set full screen
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        Level = level;
+
         switch (level){
             case 1: {
                 ballTypeAry= new GoodBallType[1];
                 ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
             }
         }
-        gamePanel = new GamePanel(this, ballTypeAry, badBallTypes, level);
+        gamePanel = new GamePanel(this, ballTypeAry, badBallTypes, level, this);
         setContentView(gamePanel);
     }
 
@@ -82,5 +86,21 @@ public class Game extends Activity implements View.OnTouchListener {
     }
     public enum BadBallType{
         POACHER
+    }
+
+    public void LoseGame(){
+        CreateEndGameActivity(0);
+    }
+    public void WinGame(){
+        CreateEndGameActivity(1);
+    }
+
+    private void CreateEndGameActivity(int wonGame){
+        Intent intent= new Intent(Game.this,EndGame.class);
+        Bundle b = new Bundle();
+        b.putInt("WonGame", wonGame);
+        b.putInt("Level",Level);
+        intent.putExtras(b);
+        startActivity(intent);
     }
 }
