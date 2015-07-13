@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
@@ -16,7 +17,11 @@ import android.view.SurfaceView;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.WindowManager;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import static com.example.andy.pandapop2.Game.*;
@@ -29,10 +34,11 @@ import static com.example.andy.pandapop2.Game.GoodBallType.PAWN;
 public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public boolean needToGenerateBadGuy=false;
     public int Level;
-    public long castleHitPoints = 2500;
+    public long castleHitPoints = 2100;
 
     public MainThread thread;
     private Background bg;
+    private Castle castle;
     private Bitmap[] pawnRes;
     private Bitmap[] poacherRes;
     private Bitmap[] poacherExpRes;
@@ -146,8 +152,8 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                         if (ballBasicSelected != null) {
                             if (y > screenHeight - 400) {
                                 ballBasicSelected.y = y;
+                                ballBasicSelected.x = x;
                             }
-                            ballBasicSelected.x = x;
                         }
                         break;
                     case MotionEvent.ACTION_UP:
@@ -184,10 +190,15 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         setFocusable(true);
 
         //Instantiate background
-        bg = new Background(drawableToBitmap(getResources().getDrawable(R.drawable.start_background_castle)));
+        bg = new Background(drawableToBitmap(getResources().getDrawable(R.drawable.start_background)));
+
+        //Instantiate Castle
+        Bitmap resCastle = drawableToBitmap(getResources().getDrawable(R.drawable.castle));
+        int xCastle = screenWidth/2-resCastle.getWidth()/2;
+        castle = new Castle(resCastle,xCastle,screenHeight-850);
 
         //Instantiate healthbar
-        healthBar = new HealthBar(10,screenHeight-10,screenWidth/4,15,castleHitPoints);
+        healthBar = new HealthBar(10,screenHeight-20,screenWidth/4,15,castleHitPoints);
 
         //Set up box of balls
         int numBoxes = goodBallTypeAry.length;
@@ -265,8 +276,13 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
             BallBad ballBad = iterator.next();
             ballBad.hitSides(screenWidth);
             ballBad.update();
-            if (ballBad.y>(screenHeight-500)){
+            if (isCollisionDetected(ballBad,castle)){
                 DoDamageToBase(ballBad);
+                BallBadExplosion ballBadExplosion = ExplodeBallBad(ballBad);
+                ballBadExplosionsToUpdate.add(ballBadExplosion);
+                iterator.remove();
+                ballBad = null;
+            } else if(ballBad.y>screenHeight-300){
                 BallBadExplosion ballBadExplosion = ExplodeBallBad(ballBad);
                 ballBadExplosionsToUpdate.add(ballBadExplosion);
                 iterator.remove();
@@ -295,6 +311,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         if (canvas  != null){
             canvas.scale(scaleFactorX, scaleFactorY);
             bg.draw(canvas);
+            castle.draw(canvas);
 
             //Syncrhonize ballBasicsToUpdate, because the user's onTouch
             //could modify this and we have no control over when it's accessed.
@@ -367,21 +384,14 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
                     poacherRes[2] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad2));
                     poacherRes[3] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad3));
                     poacherRes[4] = drawableToBitmap(getResources().getDrawable(R.drawable.ball_bad4));
+                    bb = new BallBad(poacherRes,poacherRes[0].getWidth(),poacherRes[0].getHeight(),5,badBallType,screenWidth);
+                    return bb;
                 }
-                bb = new BallBad(poacherRes,poacherRes[0].getWidth(),poacherRes[0].getHeight(),5,badBallType);
-                double randX = Math.random();
-                bb.dx = (int)((randX-.5)*0.3*100);
-                double randY = Math.random();
-                bb.dy = (int) ((randY)*25);
 
-                if (bb.dy < 8) bb.dy = 8;
-                bb.x = (int) (Math.random()*screenWidth);
-                bb.y = -bb.height;
-                return bb;
         }
         //We'll never actually get to this line but it's included to
         //suppress compile errors
-        return new BallBad(poacherRes,60,60,5,badBallType);
+        return new BallBad(poacherRes,60,60,5,badBallType,screenWidth);
     }
     private void CheckGoodBadCollisions(){
         BallBad ballBad;
@@ -446,6 +456,45 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public void WinGame(){
         ((Activity) getContext()).finish();
         surfaceDestroyed(getHolder());
+    }
+
+    public boolean isCollisionDetected(BallBad sprite1, Castle sprite2) {
+        Rect bounds1 = sprite1.getRectangle();
+        Rect bounds2 = sprite2.getRectangle();
+
+        if (Rect.intersects(bounds1, bounds2)) {
+            Rect collisionBounds = getCollisionBounds(bounds1, bounds2);
+            for (int i = collisionBounds.left; i < collisionBounds.right; i++) {
+                for (int j = collisionBounds.top; j < collisionBounds.bottom; j++) {
+                    int sprite1Pixel = getBitmapPixelBallBad(sprite1, i, j);
+                    int sprite2Pixel = getBitmapPixelCastle(sprite2, i, j);
+                    if (isFilled(sprite1Pixel) && isFilled(sprite2Pixel)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private int getBitmapPixelBallBad(BallBad sprite, int i, int j) {
+        return sprite.animation.getImage().getPixel(i - (int) sprite.x, j - (int) sprite.y);
+    }
+
+    private int getBitmapPixelCastle(Castle sprite, int i, int j){
+        return sprite.image.getPixel(i - (int) sprite.x, j - (int) sprite.y);
+    }
+
+    private Rect getCollisionBounds(Rect rect1, Rect rect2) {
+        int left = Math.max(rect1.left, rect2.left);
+        int top = Math.max(rect1.top, rect2.top);
+        int right = Math.min(rect1.right, rect2.right);
+        int bottom = Math.min(rect1.bottom, rect2.bottom);
+        return new Rect(left, top, right, bottom);
+    }
+
+    private boolean isFilled(int pixel) {
+        return pixel != Color.TRANSPARENT;
     }
 
 }
