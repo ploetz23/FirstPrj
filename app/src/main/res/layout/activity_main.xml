@@ -21,8 +21,15 @@
         android:backgroundTintMode="multiply"
         android:capitalize="none"
         android:enabled="true"
+        android:layout_marginBottom="119dp"
+        android:onClick="buttonOnClick"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="63dp"
-        android:onClick="buttonOnClick" />
+        android:layout_centerHorizontal="true" />
+
+    <NumberPicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/levelPicker"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
 </RelativeLayout>

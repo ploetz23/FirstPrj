@@ -1,6 +1,5 @@
 package com.example.andy.pandapop2;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,9 +18,13 @@ import android.view.View;
 import android.view.WindowManager;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import static com.example.andy.pandapop2.Game.*;
@@ -37,6 +40,11 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     public long castleHitPoints = 2100;
 
     public MainThread thread;
+
+    private final int LAST_LEVEL = MainActivity.LAST_LEVEL;
+
+    private long Score = 0;
+    private ArrayList<Stats> statsArrayList= new ArrayList<>();
     private Background bg;
     private Castle castle;
     private Bitmap[] pawnRes;
@@ -49,6 +57,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     private BallBox ballBox;
     private HealthBar healthBar;
     private ArrayList<BallBasic> ballBasicsInBox = new ArrayList<>();
+    private double badGuyCountdownRate;
 
     public int BadGuysLeft;
 
@@ -77,10 +86,87 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         this.Level = level;
         this.game=game;
 
+        setStatsArrayList();
+        double badGuyCountDownRate=0;
         switch (level){
-            case 1:
-                BadGuysLeft = 30;
+                case 1:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 2:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 3:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 4:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 5:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 6:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 7:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 8:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 9:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 10:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 11:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 12:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 13:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 14:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 15:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 16:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 17:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 18:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 19:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 20:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 21:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 22:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 23:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 24:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
+                case 25:
+                    badGuyCountdownRate = 3;
+                    BadGuysLeft = 30;
         }
+
+
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
 
@@ -242,7 +328,7 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
         }else{
 
             if (thread.getState() == Thread.State.TERMINATED){
-                thread = new MainThread(getHolder(), this);
+                thread = new MainThread(this.getHolder(),this);
                 thread.setRunning(true);
                 thread.start();  // Start a new thread
             }
@@ -450,12 +536,31 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void LoseGame(){
-        ((Activity) getContext()).finish();
-        surfaceDestroyed(getHolder());
+        boolean needsToAdd=true;
+        Stats statsFound = new Stats(Level);
+        for (Stats stats : statsArrayList){
+            if (stats.Level==Level){
+                statsFound=stats;
+                needsToAdd=false;
+                break;
+            }
+        }
+        statsFound.Losses++;
+        if (needsToAdd){
+            statsArrayList.add(statsFound);
+        }
+
+        storeStatsArrayList();
     }
     public void WinGame(){
-        ((Activity) getContext()).finish();
-        surfaceDestroyed(getHolder());
+        Stats statsFound = statsArrayList.get(Level-1);
+        statsFound.HasWon=true;
+        statsFound.Wins++;
+        if (Score > statsFound.HighScore){
+            statsFound.HighScore=Score;
+        }
+
+        storeStatsArrayList();
     }
 
     public boolean isCollisionDetected(BallBad sprite1, Castle sprite2) {
@@ -495,6 +600,42 @@ public class GamePanel extends SurfaceView implements SurfaceHolder.Callback {
 
     private boolean isFilled(int pixel) {
         return pixel != Color.TRANSPARENT;
+    }
+
+    private void setStatsArrayList(){
+        try {
+            String filePath = getContext().getFilesDir().getPath().toString() + "/StatsArrayList";
+            File file = new File(filePath);
+            FileInputStream fileInputStream = new FileInputStream(file);
+            try {
+                ObjectInputStream input = new ObjectInputStream(fileInputStream);
+                try {
+                    statsArrayList = (ArrayList<Stats>) input.readObject();
+                    System.out.println(statsArrayList.size());
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void storeStatsArrayList(){
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(getContext().getFilesDir().getPath().toString() + "/StatsArrayList");
+            try {
+                ObjectOutputStream output = new ObjectOutputStream(fileOutputStream);
+                output.writeObject(statsArrayList);
+                output.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 }

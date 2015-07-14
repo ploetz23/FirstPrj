@@ -42,6 +42,198 @@ public class Game extends Activity implements View.OnTouchListener {
                 badBallTypes = new BadBallType[1];
                 badBallTypes[0] = POACHER;
             }
+
+            case 2: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 3: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 4: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 5: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 6: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 7: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 8: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 9: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 10: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 11: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 12: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 13: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 14: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 15: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 16: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 17: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 18: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 19: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 20: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 21: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 22: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 23: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 24: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
+
+            case 25: {
+                ballTypeAry= new GoodBallType[1];
+                ballTypeAry[0] = PAWN;
+
+                badBallTypes = new BadBallType[1];
+                badBallTypes[0] = POACHER;
+            }
         }
         gamePanel = new GamePanel(this, ballTypeAry, badBallTypes, level, this);
         setContentView(gamePanel);
